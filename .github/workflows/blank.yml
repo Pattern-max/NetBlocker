@@ -69,7 +69,10 @@ jobs:
           
           # Apply Allowlist
           if [ -f "do_not_block" ]; then
-            grep -vFx -f do_not_block combined_unsorted.txt > combined_cleaned.txt
+            # Clean allowlist (remove whitespace and empty lines)
+            sed 's/^[[:space:]]*//;s/[[:space:]]*$//' do_not_block | sed '/^$/d' > do_not_block_clean
+            grep -vFx -f do_not_block_clean combined_unsorted.txt > combined_cleaned.txt
+            rm do_not_block_clean
           else
             mv combined_unsorted.txt combined_cleaned.txt
           fi
