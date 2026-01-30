@@ -1,4 +1,4 @@
-# 🛡️ UltimateBlockList
+# 🛡️ UltimateDNSBlockList
 
 **A balanced DNS blocklist designed for a seamless web experience.**
 
@@ -7,7 +7,7 @@
 
 ## 🚀 Overview
 
-BigBlockList is an automatically updated aggregation of high-quality blocklists. I wanted to combine multiple "functionality over blocking" lists to create the ultimate fire and forget list. It aims to provide robust protection against ads, trackers, and malicious domains without breaking your favorite websites.
+UltimateDNSBlockList is an automatically updated aggregation of high-quality blocklists. I wanted to combine multiple "functionality over blocking" lists to create the ultimate fire and forget list. It aims to provide robust protection against ads, trackers, and malicious domains without breaking your favorite websites.
 
 ### 🎯 Philosophy
 
