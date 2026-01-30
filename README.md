@@ -28,7 +28,7 @@ The list is automatically updated **every hour** to ensure it stays up-to-date.
 
 **Raw URL:**
 ```
-https://raw.githubusercontent.com/ron-png/BigBlockList/main/list/bigblocklist.txt
+https://raw.githubusercontent.com/ron-png/UltimateDNSBlockList/refs/heads/main/list/UltimateDNSBlockList.txt
 ```
 
 Add this URL to your Pi-hole, AdGuard Home, or any other DNS blocker.
