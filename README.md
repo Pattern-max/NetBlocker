@@ -39,4 +39,4 @@ Add this URL to your Pi-hole, AdGuard Home, or any other DNS blocker.
 - **False Positives:** You can suggest the exact line from the blocklist that needs to be unblocked.
   - Please open an issue with proper proof and steps to reproduce.
   - *Note:* Unblocks are added to `do_not_block_temporary` and are **temporary** (removed after 3 months). You must also suggest the change to the upstream list provider to ensure it is permanently fixed.
-  
+- **Recommend a List:** You can suggest a blocklist to be added to the UltimateDNSBlockList. Just open an issue or pull request.
