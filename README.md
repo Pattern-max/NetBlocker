@@ -1,4 +1,4 @@
-# 🛡️ UltimateDNSBlockList
+# 🛡️ NetBlocker
 
 **A balanced DNS blocklist designed for a seamless web experience.**
 
@@ -17,8 +17,8 @@ UltimateDNSBlockList is an automatically updated aggregation of high-quality blo
 
 This list combines the following sources:
 
-- **[AdGuard DNS Filter](https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt)**: A comprehensive filter composed of several other filters (AdGuard Base filter, Social Media filter, Tracking Protection filter, Mobile Ads filter, EasyList, and EasyPrivacy) specifically simplified to be compatible with DNS-level ad blocking. [Report false positive](https://reports.adguard.com/en/new_issue.html)
-- **[OISD Big](https://big.oisd.nl)**: A massive, highly-regarded blocklist that focuses heavily on not breaking valid services. [Report false positive](https://oisd.nl/report)
+- **[HaGeZi's Pro mini DNS/Browser Blocklist](https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt)**: The recommended core list for balanced ad and tracker blocking with minimal false positives. It intelligently integrates filtering from multiple reputable sources. [Report false positive](https://github.com/hagezi/dns-blocklists/issues)
+- **[HaGeZi's Threat Intelligence Feeds DNS Blocklist - medium version](https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.medium.txt)**: Specialized security reinforcement focusing on blocking emerging threats such as phishing, malware, cryptojacking, and scam domains. [Report false positive](https://github.com/hagezi/dns-blocklists/issues)
 
 ## 🔄 Updates
 
