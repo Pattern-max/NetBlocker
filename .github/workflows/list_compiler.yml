@@ -79,15 +79,17 @@ jobs:
           # Cleanup
           rm combined_temp.txt combined_unsorted.txt combined_cleaned.txt header.txt
 
-      # Comit and push changes if there are any
+      # Commit and push changes (ensuring a commit always happens)
       - name: Commit and Push
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add list/NetBlocker.txt version.txt
+          # 尝试进行常规提交
           if [[ -n $(git status -s) ]]; then
             git commit -m "Update NetBlocker.txt to version $(cat version.txt)"
-            git push
           else
-            echo "No changes to commit"
+            # 如果没有变化，就创建一个空的提交，仅更新日期
+            git commit --allow-empty -m "Scheduled keep-alive commit to maintain repository activity [$(date +%Y-%m-%d)]"
           fi
+          git push
