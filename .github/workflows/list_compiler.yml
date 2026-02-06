@@ -187,7 +187,11 @@ jobs:
           echo "! Title: NetBlocker" >> header.txt
           echo "! Homepage: https://github.com/${{ github.repository }}" >> header.txt
           echo "! Version: $new_version" >> header.txt
-          echo "! Last modified: $(date -u +\"%Y-%m-%d %H:%M:%S(GMT+0)\")" >> header.txt
+          
+          # 修复这里：避免括号语法错误
+          last_modified=$(date -u +"%Y-%m-%d %H:%M:%S")
+          echo "! Last modified: ${last_modified}(GMT+0)" >> header.txt
+          
           echo "! Description: Aggregated from multiple high-quality blocklist sources." >> header.txt
           
           # 添加统计信息
