@@ -9,10 +9,10 @@ https://easylist-downloads.adblockplus.org/easylistchina.txt
 https://easylist.to/easylist/easyprivacy.txt
 https://gcore.jsdelivr.net/gh/xinggsf/Adblock-Plus-Rule@master/mv.txt
 https://raw.githubusercontent.com/damengzhu/banad/refs/heads/main/jiekouAD.txt
-https://github.com/TG-Twilight/AWAvenue-Ads-Rule/raw/refs/heads/main/Filters/AWAvenue-Ads-Rule-Adblock.txt
-https://github.com/hagezi/dns-blocklists/raw/refs/heads/main/adblock/light.txt
+https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/refs/heads/main/Filters/AWAvenue-Ads-Rule-Adblock.txt
+https://raw.githubusercontent.com/hagezi/dns-blocklists/refs/heads/main/adblock/light.txt
 https://hblock.molinero.dev/hosts_adblock.txt
-https://github.com/sjhgvr/oisd/raw/refs/heads/main/oisd_small.txt
+https://small.oisd.nl
 https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
 https://someonewhocares.org/hosts/
 https://github.com/217heidai/adblockfilters/raw/refs/heads/main/rules/white.txt
