@@ -27,12 +27,13 @@ jobs:
           # Create Header
           echo "! Title: NetBlocker" > header.txt
           echo "! Version: $new_version" >> header.txt
-          echo "! Last modified: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> header.txt
+          echo "! Last modified: $(date -u +\"%Y-%m-%dT%H:%M:%SZ\")" >> header.txt
           echo "! License: https://github.com/${{ github.repository }}/blob/main/LICENSE" >> header.txt
           echo "! Aggregated from multiple high-quality blocklist sources" >> header.txt
           echo "! Whitelist sources:" >> header.txt
           echo "! - AdGuard DNS Exclusions" >> header.txt
           echo "! - AdGuard DNS Exceptions" >> header.txt
+          echo "! - AdGuard BaseFilter Allowlist" >> header.txt
           echo "! - Local allowlist.txt (if present)" >> header.txt
           echo "!" >> header.txt
 
@@ -41,11 +42,13 @@ jobs:
           # ===========================================
           echo "Downloading AdGuard whitelists..."
           
-          # 下载AdGuard官方白名单
+          # 下载AdGuard官方白名单 (共三个远程源)
           curl -s "https://raw.githubusercontent.com/AdguardTeam/AdGuardSDNSFilter/master/Filters/exclusions.txt" -o adguard_exclusions.txt
           curl -s "https://raw.githubusercontent.com/AdguardTeam/AdGuardSDNSFilter/master/Filters/exceptions.txt" -o adguard_exceptions.txt
+          curl -s "https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/BaseFilter/sections/allowlist.txt" -o adguard_base_allowlist.txt
           
           # 清理和提取域名规则
+          # 处理 exclusions.txt
           if [ -f "adguard_exclusions.txt" ]; then
             echo "Processing AdGuard exclusions..."
             grep -v -e '^!' -e '^#' adguard_exclusions.txt | \
@@ -59,6 +62,7 @@ jobs:
                 sed '/^[[:space:]]*$/d' > adguard_exclusions_clean.txt
           fi
           
+          # 处理 exceptions.txt
           if [ -f "adguard_exceptions.txt" ]; then
             echo "Processing AdGuard exceptions..."
             grep -v -e '^!' -e '^#' adguard_exceptions.txt | \
@@ -72,6 +76,20 @@ jobs:
                 sed '/^[[:space:]]*$/d' > adguard_exceptions_clean.txt
           fi
           
+          # 处理 BaseFilter allowlist.txt
+          if [ -f "adguard_base_allowlist.txt" ]; then
+            echo "Processing AdGuard BaseFilter allowlist..."
+            grep -v -e '^!' -e '^#' adguard_base_allowlist.txt | \
+                sed 's/[[:space:]]*#.*//' | \
+                sed '/^$/d' | \
+                grep -v -e '\$' -e '\^' -e '\|' | \
+                sed 's/^@@//' | \
+                sed 's/^||//' | \
+                sed 's/\^$//' | \
+                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
+                sed '/^[[:space:]]*$/d' > adguard_base_allowlist_clean.txt
+          fi
+          
           # ===========================================
           # STEP 2: 合并所有白名单
           # ===========================================
@@ -80,7 +98,7 @@ jobs:
           # 创建总白名单文件
           touch total_whitelist.txt
           
-          # 添加AdGuard白名单
+          # 依次添加AdGuard官方白名单源
           if [ -f "adguard_exclusions_clean.txt" ]; then
             cat adguard_exclusions_clean.txt >> total_whitelist.txt
             exclusion_count=$(wc -l < adguard_exclusions_clean.txt | xargs)
@@ -91,6 +109,12 @@ jobs:
             cat adguard_exceptions_clean.txt >> total_whitelist.txt
             exception_count=$(wc -l < adguard_exceptions_clean.txt | xargs)
             echo "Added $exception_count entries from AdGuard exceptions"
+          fi
+          
+          if [ -f "adguard_base_allowlist_clean.txt" ]; then
+            cat adguard_base_allowlist_clean.txt >> total_whitelist.txt
+            base_allowlist_count=$(wc -l < adguard_base_allowlist_clean.txt | xargs)
+            echo "Added $base_allowlist_count entries from AdGuard BaseFilter allowlist"
           fi
           
           # 添加本地白名单（如果存在）
@@ -173,8 +197,8 @@ jobs:
           # STEP 6: 清理临时文件
           # ===========================================
           rm -f combined_temp.txt combined_unsorted.txt combined_cleaned.txt header.txt
-          rm -f adguard_exclusions.txt adguard_exceptions.txt
-          rm -f adguard_exclusions_clean.txt adguard_exceptions_clean.txt
+          rm -f adguard_exclusions.txt adguard_exceptions.txt adguard_base_allowlist.txt
+          rm -f adguard_exclusions_clean.txt adguard_exceptions_clean.txt adguard_base_allowlist_clean.txt
           rm -f total_whitelist.txt total_whitelist_clean.txt
           
           echo "Compilation complete!"
