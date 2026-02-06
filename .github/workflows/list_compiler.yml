@@ -24,20 +24,6 @@ jobs:
           new_version=$(awk "BEGIN {printf \"%.2f\", $current_version + 0.01}")
           echo $new_version > version.txt
 
-          # Create Header
-          echo "! Title: NetBlocker" > header.txt
-          echo "! Version: $new_version" >> header.txt
-          echo "! Last modified: $(date -u +\"%Y-%m-%dT%H:%M:%SZ\")" >> header.txt
-          echo "! License: https://github.com/${{ github.repository }}/blob/main/LICENSE" >> header.txt
-          echo "! Aggregated from multiple high-quality blocklist sources" >> header.txt
-          echo "! Whitelist sources:" >> header.txt
-          echo "! - AdGuard DNS Exclusions" >> header.txt
-          echo "! - AdGuard DNS Exceptions" >> header.txt
-          echo "! - AdGuard BaseFilter Allowlist" >> header.txt
-          echo "! - Local allowlist.txt (if present)" >> header.txt
-          echo "! - Local custom TLD blocklist (if present)" >> header.txt
-          echo "!" >> header.txt
-
           # ===========================================
           # STEP 1: 下载和处理AdGuard官方白名单
           # ===========================================
@@ -176,8 +162,8 @@ jobs:
             echo "Applying whitelist to blocklist..."
             initial_count=$(wc -l < combined_unsorted.txt | xargs)
             
-            # 【关键修改】应用白名单过滤：将 -vFx 改为 -v，允许部分匹配
-            grep -v -f total_whitelist_clean.txt combined_unsorted.txt > combined_cleaned.txt
+            # 应用白名单过滤
+            grep -vFx -f total_whitelist_clean.txt combined_unsorted.txt > combined_cleaned.txt
             
             final_count=$(wc -l < combined_cleaned.txt | xargs)
             removed_count=$((initial_count - final_count))
@@ -194,15 +180,25 @@ jobs:
           fi
 
           # ===========================================
-          # STEP 5: 生成最终列表
+          # STEP 5: 生成最终列表（简化标题头）
           # ===========================================
-          # Add Count to Header
-          line_count=$(wc -l < combined_cleaned.txt | xargs)
-          echo "! Final count: $line_count" >> header.txt
-          echo "! Whitelist entries applied: $removed_count" >> header.txt
-          echo "!" >> header.txt
+          # 创建简洁的标题头（模仿AdRules格式）
+          echo "[Adblock Plus 2.0]" > header.txt
+          echo "! Title: NetBlocker" >> header.txt
+          echo "! Homepage: https://github.com/${{ github.repository }}" >> header.txt
+          echo "! Version: $new_version" >> header.txt
+          echo "! Last modified: $(date -u +\"%Y-%m-%d %H:%M:%S(GMT+0)\")" >> header.txt
+          echo "! Description: Aggregated from multiple high-quality blocklist sources." >> header.txt
           
-          # Final Output
+          # 添加统计信息
+          line_count=$(wc -l < combined_cleaned.txt | xargs)
+          echo "! Total count: $line_count" >> header.txt
+          echo "! Whitelist entries applied: $removed_count" >> header.txt
+          
+          # 空行分隔标题头和规则
+          echo "" >> header.txt
+          
+          # 最终输出
           cat header.txt combined_cleaned.txt > list/NetBlocker.txt
           
           # ===========================================
