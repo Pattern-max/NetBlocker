@@ -1,2 +1,2 @@
-https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt
-https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.medium.txt
+https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+https://big.oisd.nl
