@@ -1,31 +1,20 @@
 name: Compile List
 
-# Controls when the workflow will run
 on:
-  # Run every hour
   schedule:
     - cron: '20 * * * *'
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Download lists, sort and remove duplicates
-      - name: Update Blocklist
+      - name: Update Blocklist with AdGuard Whitelists
         run: |
           mkdir -p list
           
@@ -41,74 +30,162 @@ jobs:
           echo "! Last modified: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> header.txt
           echo "! License: https://github.com/${{ github.repository }}/blob/main/LICENSE" >> header.txt
           echo "! Aggregated from multiple high-quality blocklist sources" >> header.txt
-          echo "! Whitelist applied from: allowlist.txt" >> header.txt
+          echo "! Whitelist sources:" >> header.txt
+          echo "! - AdGuard DNS Exclusions" >> header.txt
+          echo "! - AdGuard DNS Exceptions" >> header.txt
+          echo "! - Local allowlist.txt" >> header.txt
           echo "!" >> header.txt
 
-          # Download and Clean
-          # Loop through sources.txt, download, and clean each list
+          # ===========================================
+          # STEP 1: 下载和处理AdGuard官方白名单
+          # ===========================================
+          echo "Downloading AdGuard whitelists..."
+          
+          # 下载AdGuard官方白名单
+          curl -s "https://raw.githubusercontent.com/AdguardTeam/AdGuardSDNSFilter/master/Filters/exclusions.txt" -o adguard_exclusions.txt
+          curl -s "https://raw.githubusercontent.com/AdguardTeam/AdGuardSDNSFilter/master/Filters/exceptions.txt" -o adguard_exceptions.txt
+          
+          # 清理和提取域名规则（移除注释、空行、特殊规则）
+          # AdGuard规则格式处理：
+          # 1. 移除行首注释（!、#）
+          # 2. 移除空行
+          # 3. 移除AdGuard特定规则（包含$、^等特殊字符的规则）
+          # 4. 提取纯域名规则
+          
+          # 处理exclusions.txt
+          if [ -f "adguard_exclusions.txt" ]; then
+            echo "Processing AdGuard exclusions..."
+            grep -v -e '^!' -e '^#' adguard_exclusions.txt | \
+                sed 's/[[:space:]]*#.*//' | \
+                sed '/^$/d' | \
+                grep -v -e '\$' -e '\^' -e '\|' | \
+                sed 's/^@@//' | \
+                sed 's/^||//' | \
+                sed 's/\^$//' | \
+                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > adguard_exclusions_clean.txt
+          fi
+          
+          # 处理exceptions.txt
+          if [ -f "adguard_exceptions.txt" ]; then
+            echo "Processing AdGuard exceptions..."
+            grep -v -e '^!' -e '^#' adguard_exceptions.txt | \
+                sed 's/[[:space:]]*#.*//' | \
+                sed '/^$/d' | \
+                grep -v -e '\$' -e '\^' -e '\|' | \
+                sed 's/^@@//' | \
+                sed 's/^||//' | \
+                sed 's/\^$//' | \
+                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > adguard_exceptions_clean.txt
+          fi
+          
+          # ===========================================
+          # STEP 2: 合并所有白名单
+          # ===========================================
+          echo "Merging all whitelists..."
+          
+          # 创建总白名单文件
+          touch total_whitelist.txt
+          
+          # 添加AdGuard白名单
+          if [ -f "adguard_exclusions_clean.txt" ]; then
+            cat adguard_exclusions_clean.txt >> total_whitelist.txt
+            echo "Added $(wc -l < adguard_exclusions_clean.txt) entries from AdGuard exclusions"
+          fi
+          
+          if [ -f "adguard_exceptions_clean.txt" ]; then
+            cat adguard_exceptions_clean.txt >> total_whitelist.txt
+            echo "Added $(wc -l < adguard_exceptions_clean.txt) entries from AdGuard exceptions"
+          fi
+          
+          # 添加本地白名单（如果存在）
+          if [ -f "allowlist.txt" ]; then
+            echo "Adding local allowlist..."
+            # 清理本地白名单（移除注释和空行）
+            sed 's/#.*//' allowlist.txt | \
+                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
+                sed '/^$/d' >> total_whitelist.txt
+            echo "Added $(sed 's/#.*//' allowlist.txt | sed '/^$/d' | wc -l) entries from local allowlist"
+          fi
+          
+          # 去重和排序总白名单
+          if [ -s "total_whitelist.txt" ]; then
+            sort -u total_whitelist.txt > total_whitelist_clean.txt
+            total_whitelist_count=$(wc -l < total_whitelist_clean.txt | xargs)
+            echo "Total unique whitelist entries: $total_whitelist_count"
+          else
+            echo "No whitelist entries found"
+            touch total_whitelist_clean.txt
+          fi
+          
+          # ===========================================
+          # STEP 3: 下载和处理主黑名单
+          # ===========================================
+          echo "Downloading and processing blocklists..."
+          
+          # 下载源列表
           touch combined_temp.txt
           while IFS= read -r url || [ -n "$url" ]; do
             if [ -n "$url" ]; then
               echo "Downloading $url"
-              # Download, strip comments (!, #, [), and append to temp file
               curl -s "$url" | grep -v -e "^!" -e "^#" -e "^\[" >> combined_temp.txt
             fi
           done < sources.txt
           
-          # Combine
+          # 合并和去重
           sort -u combined_temp.txt > combined_unsorted.txt
           
-          # Apply Allowlist (白名单)
-          if [ -f "allowlist.txt" ]; then
-            echo "Applying allowlist..."
-            # Clean allowlist (remove comments, whitespace, empty lines)
-            # 移除行内和行首的注释（以#开头的内容）
-            # 支持两种格式的注释：
-            # 1. 整行注释: # comment
-            # 2. 行内注释: domain.com # comment
-            sed 's/#.*//' allowlist.txt | \
-                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
-                sed '/^$/d' > allowlist_clean.txt
+          # ===========================================
+          # STEP 4: 应用白名单
+          # ===========================================
+          if [ -s "total_whitelist_clean.txt" ]; then
+            echo "Applying whitelist to blocklist..."
+            initial_count=$(wc -l < combined_unsorted.txt | xargs)
             
-            # 统计白名单条目数
-            allowlist_count=$(wc -l < allowlist_clean.txt | xargs)
-            echo "Allowlist entries: $allowlist_count"
+            # 应用白名单过滤
+            grep -vFx -f total_whitelist_clean.txt combined_unsorted.txt > combined_cleaned.txt
             
-            # 应用白名单：从blocklist中排除白名单中的域名
-            if [ -s "allowlist_clean.txt" ]; then
-              grep -vFx -f allowlist_clean.txt combined_unsorted.txt > combined_cleaned.txt
-              echo "Removed $(( $(wc -l < combined_unsorted.txt) - $(wc -l < combined_cleaned.txt) )) entries via allowlist"
-            else
-              mv combined_unsorted.txt combined_cleaned.txt
-              echo "Allowlist is empty or contains only comments"
-            fi
-            rm allowlist_clean.txt
+            final_count=$(wc -l < combined_cleaned.txt | xargs)
+            removed_count=$((initial_count - final_count))
+            echo "Removed $removed_count entries via whitelist"
+            
+            # 输出被移除的域名（前10个作为示例）
+            echo "Sample of removed domains:"
+            grep -Fx -f total_whitelist_clean.txt combined_unsorted.txt | head -10
           else
-            echo "No allowlist.txt found, skipping allowlist filter"
+            echo "No whitelist to apply, skipping filter"
             mv combined_unsorted.txt combined_cleaned.txt
           fi
 
+          # ===========================================
+          # STEP 5: 生成最终列表
+          # ===========================================
           # Add Count to Header
           line_count=$(wc -l < combined_cleaned.txt | xargs)
-          echo "! Count: $line_count" >> header.txt
+          echo "! Final count: $line_count" >> header.txt
+          echo "! Whitelist entries applied: ${removed_count:-0}" >> header.txt
+          echo "!" >> header.txt
           
           # Final Output
           cat header.txt combined_cleaned.txt > list/NetBlocker.txt
           
-          # Cleanup
+          # ===========================================
+          # STEP 6: 清理临时文件
+          # ===========================================
           rm -f combined_temp.txt combined_unsorted.txt combined_cleaned.txt header.txt
+          rm -f adguard_exclusions.txt adguard_exceptions.txt
+          rm -f adguard_exclusions_clean.txt adguard_exceptions_clean.txt
+          rm -f total_whitelist.txt total_whitelist_clean.txt
+          
+          echo "Compilation complete!"
 
-      # Commit and push changes (ensuring a commit always happens)
       - name: Commit and Push
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add list/NetBlocker.txt version.txt
-          # 尝试进行常规提交
           if [[ -n $(git status -s) ]]; then
             git commit -m "Update NetBlocker.txt to version $(cat version.txt)"
           else
-            # 如果没有变化，就创建一个空的提交，仅更新日期
             git commit --allow-empty -m "Scheduled keep-alive commit to maintain repository activity [$(date +%Y-%m-%d)]"
           fi
           git push
