@@ -1,2 +1,163 @@
-! 放行AdGuard
+# ===========================================
+# NetBlocker 本地白名单文件
+# 此文件中的规则将优先于任何黑名单规则
+# 格式：纯域名或正则表达式（一行一个）
+# 注释以#开头
+# ===========================================
+
+# ============ 核心服务 ============
+# 操作系统和云服务
+microsoft.com
+apple.com
+google.com
+mozilla.org
+ubuntu.com
+debian.org
+cloudflare.com
+amazonaws.com
+azure.com
+gstatic.com
+
+# ============ CDN和静态资源 ============
+# 确保网站正常加载
+cdn.jsdelivr.net
+unpkg.com
+bootstrapcdn.com
+cloudfront.net
+fastly.net
+akamaihd.net
+
+# ============ 开发工具和API ============
+# 开发者和服务集成
+github.com
+gitlab.com
+bitbucket.org
+docker.com
+npmjs.com
+pypi.org
+stackoverflow.com
+
+# ============ 安全证书 ============
+# SSL/TLS证书相关
+letsencrypt.org
+digicert.com
+ssl.com
+sectigo.com
+comodoca.com
+
+# ============ 分析和监控 ============
+# 必要的分析服务（仅限基础）
+matomo.org
+plausible.io
+umami.is
+goatcounter.com
+
+# ============ 支付网关 ============
+# 确保在线支付正常
+stripe.com
+paypal.com
+braintreegateway.com
+squareup.com
+
+# ============ 邮件服务 ============
+# 邮件发送和接收
+sendgrid.net
+mailgun.org
+postmarkapp.com
+sparkpostmail.com
+amazonses.com
+
+# ============ 地图和定位 ============
+# 地图API服务
+openstreetmap.org
+mapbox.com
+maps.google.com
+nominatim.openstreetmap.org
+
+# ============ 字体和图标 ============
+# 常用字体库
+fonts.googleapis.com
+fonts.gstatic.com
+fontawesome.com
+use.fontawesome.com
+kit.fontawesome.com
+
+# ============ 中国常用服务 ============
+# 国内常用且安全的服务
+weixin.qq.com
+qq.com
+baidu.com
+alipay.com
+taobao.com
+jd.com
+bilibili.com
+zhihu.com
+douban.com
+
+# ============ 办公和协作 ============
+# 办公软件服务
+office.com
+office365.com
+zoom.us
+teams.microsoft.com
+slack.com
+discord.com
+
+# ============ 版本更新 ============
+# 软件更新和补丁
+windowsupdate.com
+update.microsoft.com
+swscan.apple.com
+aus2.mozilla.org
+download.mozilla.org
+
+# ============ DNS和网络基础设施 ============
+# 网络核心服务
+1.1.1.1
+8.8.8.8
+9.9.9.9
+opendns.com
+dns.google
+
+# ============ 时间和日期服务 ============
+# 时间同步
+time.windows.com
+time.apple.com
+pool.ntp.org
+ntp.org
+
+# ============ 重要开源项目 ============
+# 开源基础设施
+python.org
+nodejs.org
+rubygems.org
+cran.r-project.org
+maven.apache.org
+
+# ============ 企业VPN和远程访问 ============
+# 企业级服务（选择性添加）
+*.vpn.example.com  # 替换为您的企业VPN域名
+*.remote.example.com
+
+# ============ 自定义例外规则 ============
+# 在此处添加您的个人例外
+# 格式示例：
+# *.mycompany.com  # 公司内部域名
+# *.homelab.local  # 家庭实验室域名
+# internal-server.local
+
+# ===========================================
+# 注意：
+# 1. 此白名单不会影响custom_block_tld.txt中的TLD拦截
+# 2. 所有规则会被转换为纯域名格式进行处理
+# 3. 每行一个规则，支持通配符(*)
+# 4. 定期审查此列表，移除不再需要的规则
+# ===========================================
+
+# ===========================================
+# 放行AdGuard
 @@||adguard.com^
+
+# ===========================================
+
+
