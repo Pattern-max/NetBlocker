@@ -33,7 +33,7 @@ jobs:
           echo "! Whitelist sources:" >> header.txt
           echo "! - AdGuard DNS Exclusions" >> header.txt
           echo "! - AdGuard DNS Exceptions" >> header.txt
-          echo "! - Local allowlist.txt" >> header.txt
+          echo "! - Local allowlist.txt (if present)" >> header.txt
           echo "!" >> header.txt
 
           # ===========================================
@@ -45,14 +45,7 @@ jobs:
           curl -s "https://raw.githubusercontent.com/AdguardTeam/AdGuardSDNSFilter/master/Filters/exclusions.txt" -o adguard_exclusions.txt
           curl -s "https://raw.githubusercontent.com/AdguardTeam/AdGuardSDNSFilter/master/Filters/exceptions.txt" -o adguard_exceptions.txt
           
-          # 清理和提取域名规则（移除注释、空行、特殊规则）
-          # AdGuard规则格式处理：
-          # 1. 移除行首注释（!、#）
-          # 2. 移除空行
-          # 3. 移除AdGuard特定规则（包含$、^等特殊字符的规则）
-          # 4. 提取纯域名规则
-          
-          # 处理exclusions.txt
+          # 清理和提取域名规则
           if [ -f "adguard_exclusions.txt" ]; then
             echo "Processing AdGuard exclusions..."
             grep -v -e '^!' -e '^#' adguard_exclusions.txt | \
@@ -62,10 +55,10 @@ jobs:
                 sed 's/^@@//' | \
                 sed 's/^||//' | \
                 sed 's/\^$//' | \
-                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > adguard_exclusions_clean.txt
+                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
+                sed '/^[[:space:]]*$/d' > adguard_exclusions_clean.txt
           fi
           
-          # 处理exceptions.txt
           if [ -f "adguard_exceptions.txt" ]; then
             echo "Processing AdGuard exceptions..."
             grep -v -e '^!' -e '^#' adguard_exceptions.txt | \
@@ -75,7 +68,8 @@ jobs:
                 sed 's/^@@//' | \
                 sed 's/^||//' | \
                 sed 's/\^$//' | \
-                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > adguard_exceptions_clean.txt
+                sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
+                sed '/^[[:space:]]*$/d' > adguard_exceptions_clean.txt
           fi
           
           # ===========================================
@@ -89,22 +83,26 @@ jobs:
           # 添加AdGuard白名单
           if [ -f "adguard_exclusions_clean.txt" ]; then
             cat adguard_exclusions_clean.txt >> total_whitelist.txt
-            echo "Added $(wc -l < adguard_exclusions_clean.txt) entries from AdGuard exclusions"
+            exclusion_count=$(wc -l < adguard_exclusions_clean.txt | xargs)
+            echo "Added $exclusion_count entries from AdGuard exclusions"
           fi
           
           if [ -f "adguard_exceptions_clean.txt" ]; then
             cat adguard_exceptions_clean.txt >> total_whitelist.txt
-            echo "Added $(wc -l < adguard_exceptions_clean.txt) entries from AdGuard exceptions"
+            exception_count=$(wc -l < adguard_exceptions_clean.txt | xargs)
+            echo "Added $exception_count entries from AdGuard exceptions"
           fi
           
           # 添加本地白名单（如果存在）
           if [ -f "allowlist.txt" ]; then
             echo "Adding local allowlist..."
-            # 清理本地白名单（移除注释和空行）
+            # 清理本地白名单：移除注释，保留规则
             sed 's/#.*//' allowlist.txt | \
                 sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
-                sed '/^$/d' >> total_whitelist.txt
-            echo "Added $(sed 's/#.*//' allowlist.txt | sed '/^$/d' | wc -l) entries from local allowlist"
+                sed '/^$/d' | \
+                sed '/^[[:space:]]*$/d' >> total_whitelist.txt
+            local_count=$(sed 's/#.*//' allowlist.txt | sed '/^$/d' | sed '/^[[:space:]]*$/d' | wc -l | xargs)
+            echo "Added $local_count entries from local allowlist"
           fi
           
           # 去重和排序总白名单
@@ -137,6 +135,7 @@ jobs:
           # ===========================================
           # STEP 4: 应用白名单
           # ===========================================
+          removed_count=0
           if [ -s "total_whitelist_clean.txt" ]; then
             echo "Applying whitelist to blocklist..."
             initial_count=$(wc -l < combined_unsorted.txt | xargs)
@@ -149,8 +148,10 @@ jobs:
             echo "Removed $removed_count entries via whitelist"
             
             # 输出被移除的域名（前10个作为示例）
-            echo "Sample of removed domains:"
-            grep -Fx -f total_whitelist_clean.txt combined_unsorted.txt | head -10
+            if [ $removed_count -gt 0 ]; then
+              echo "Sample of removed domains:"
+              grep -Fx -f total_whitelist_clean.txt combined_unsorted.txt | head -10
+            fi
           else
             echo "No whitelist to apply, skipping filter"
             mv combined_unsorted.txt combined_cleaned.txt
@@ -162,7 +163,7 @@ jobs:
           # Add Count to Header
           line_count=$(wc -l < combined_cleaned.txt | xargs)
           echo "! Final count: $line_count" >> header.txt
-          echo "! Whitelist entries applied: ${removed_count:-0}" >> header.txt
+          echo "! Whitelist entries applied: $removed_count" >> header.txt
           echo "!" >> header.txt
           
           # Final Output
