@@ -1,2 +1,4 @@
+https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt
+https://cdn.jsdelivr.net/gh/sbwml/halflife-list@master/ad.txt
 https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi.txt
 https://big.oisd.nl
