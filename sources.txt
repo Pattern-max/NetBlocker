@@ -1,3 +1,4 @@
 https://filters.adtidy.org/extension/ublock/filters/220.txt
 https://cdn.jsdelivr.net/gh/sbwml/halflife-list@master/ad.txt
-https://raw.githubusercontent.com/cbuijs/hagezi/main/combo/pro-tif/domains.adblock
+https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/multi
+https://big.oisd.nl
