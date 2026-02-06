@@ -8,7 +8,7 @@ https://easylist.to/easylist/easylist.txt
 https://easylist-downloads.adblockplus.org/easylistchina.txt
 https://easylist.to/easylist/easyprivacy.txt
 https://gcore.jsdelivr.net/gh/xinggsf/Adblock-Plus-Rule@master/mv.txt
-https://github.com/damengzhu/banad/raw/refs/heads/main/jiekouAD.txt
+https://raw.githubusercontent.com/damengzhu/banad/refs/heads/main/jiekouAD.txt
 https://github.com/TG-Twilight/AWAvenue-Ads-Rule/raw/refs/heads/main/Filters/AWAvenue-Ads-Rule-Adblock.txt
 https://github.com/hagezi/dns-blocklists/raw/refs/heads/main/adblock/light.txt
 https://hblock.molinero.dev/hosts_adblock.txt
