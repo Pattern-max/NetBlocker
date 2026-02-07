@@ -2,4 +2,4 @@ https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt
 https://easylist-downloads.adblockplus.org/easyprivacy.txt
 https://filters.adtidy.org/extension/chromium/filters/224.txt
 https://filters.adtidy.org/android/filters/11_optimized.txt
-https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt
+https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/light.txt
