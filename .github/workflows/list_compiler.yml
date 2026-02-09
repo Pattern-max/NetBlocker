@@ -23,9 +23,10 @@ jobs:
           [ ! -f version.txt ] && echo "1.00" > version.txt
           current_version=$(cat version.txt)
 
-          echo "🚀 开始编译 Prime Blocklist"
-          echo "=========================================="
-          echo "📋 将读取 sources.txt 中的规则源进行集成"
+          echo "🚀 开始编译 Prime Blocklist (基于hagezi推荐列表)"
+          echo "=================================================="
+          echo "📋 集成列表: pro.mini + tif.medium + spam-tlds"
+          echo "⚠️  本次编译不应用远程白名单"
           echo "------------------------------------------"
 
           # 1. 检查并读取 sources.txt
@@ -76,56 +77,47 @@ jobs:
           fi
           
           # 3. 初次合并与去重
-          echo "🧹 初次去重..."
+          echo "🧹 规则初次去重..."
           sort -u all_raw_rules.txt > combined_block.txt
           initial_count=$(wc -l < combined_block.txt | xargs)
           echo "   → 合并后唯一拦截规则数: $initial_count"
-          
-          # 4. 下载并应用hagezi推荐白名单
-          echo "🛡️  应用hagezi推荐白名单 (whitelist-referral.txt)..."
-          curl -s --retry 3 "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/whitelist-referral.txt" -o whitelist_hagezi.txt
-          
-          grep -v -e '^!' -e '^#' -e '^\[' -e '^$' whitelist_hagezi.txt | sed 's/^@@//' > whitelist_clean.txt
-          
-          if [ -s "whitelist_clean.txt" ]; then
-            grep -vFf whitelist_clean.txt combined_block.txt > combined_after_hagezi_whitelist.txt
-            mv combined_after_hagezi_whitelist.txt combined_block.txt
-            hagezi_whitelist_count=$(wc -l < whitelist_clean.txt | xargs)
-            echo "   → 已应用hagezi白名单条目: $hagezi_whitelist_count"
-          else
-            echo "   → hagezi白名单为空，跳过"
-          fi
 
-          # 5. 应用本地应急白名单 (allowlist.txt)
+          # 4. 应用本地应急白名单 (allowlist.txt) - 核心保留功能
           local_removed_count=0
           if [ -f "allowlist.txt" ] && [ -s "allowlist.txt" ]; then
-            echo "📝 应用本地应急白名单 (allowlist.txt)..."
+            echo "🛡️  应用本地应急白名单 (allowlist.txt)..."
+            # 安全地清理白名单文件
             sed 's/#.*//' allowlist.txt 2>/dev/null | \
               sed 's/^[[:space:]]*//;s/[[:space:]]*$//' 2>/dev/null | \
               grep -v '^$' 2>/dev/null > local_whitelist_clean.txt || true
             
             if [ -s "local_whitelist_clean.txt" ]; then
+              # 应用白名单并统计移除数量
               temp_count_before=$(wc -l < combined_block.txt)
               grep -vFf local_whitelist_clean.txt combined_block.txt > combined_temp.txt
               temp_count_after=$(wc -l < combined_temp.txt)
               local_removed_count=$((temp_count_before - temp_count_after))
+              
+              # 更新combined_block.txt
               mv combined_temp.txt combined_block.txt
+              
               echo "   → 已移除本地白名单条目: $local_removed_count"
             else
-              echo "   → 本地白名单无有效条目，跳过"
+              echo "   → 本地白名单无有效条目，跳过处理"
             fi
+            # 清理临时文件
             rm -f local_whitelist_clean.txt
           else
-            echo "📝 未找到非空本地白名单，跳过"
+            echo "📝 未找到非空本地白名单，跳过此步骤"
           fi
 
-          # 6. 最终去重与统计
+          # 5. 最终去重与统计
           echo "🔍 最终去重与统计..."
           sort -u combined_block.txt > final_rules.txt
           final_count=$(wc -l < final_rules.txt | xargs)
           echo "   → 最终唯一规则总数: $final_count"
 
-          # 7. 版本管理
+          # 6. 版本管理
           previous_count=$(grep -oP '! Total count: \K\d+' list/Prime_Blocklist.txt 2>/dev/null || echo "0")
           if [[ "$final_count" != "$previous_count" ]] || [[ ! -f "list/Prime_Blocklist.txt" ]]; then
             new_version=$(awk "BEGIN {printf \"%.2f\", $current_version + 0.01}")
@@ -133,11 +125,11 @@ jobs:
             echo "📈 版本更新: v$current_version -> v$new_version (规则数: $previous_count -> $final_count)"
             should_commit=true
           else
-            echo "📊 规则数量未变化，保持版本: v$current_version"
+            echo "📊 规则数量未变化 ($final_count)，保持版本: v$current_version"
             should_commit=false
           fi
 
-          # 8. 生成最终文件
+          # 7. 生成最终文件（极简头部）
           {
             echo "[Adblock Plus 2.0]"
             echo "! Title: Prime Blocklist"
@@ -148,8 +140,8 @@ jobs:
             cat final_rules.txt
           } > list/Prime_Blocklist.txt
 
-          # 9. 清理与报告
-          rm -f all_raw_rules.txt combined_block.txt whitelist_*.txt final_rules.txt
+          # 8. 清理与最终报告
+          rm -f all_raw_rules.txt combined_block.txt final_rules.txt
           echo ""
           echo "✅ Prime Blocklist 编译完成！"
           echo "📁 输出文件: list/Prime_Blocklist.txt"
