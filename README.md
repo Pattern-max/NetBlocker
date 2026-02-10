@@ -1,4 +1,4 @@
-# 🛡️ NetBlocker
+# 🛡️ Prime Blocklist
 
 **A balanced DNS blocklist designed for a seamless web experience.**
 
@@ -7,7 +7,7 @@
 
 ## 🚀 Overview
 
-NetBlocker is an automatically updated aggregation of high-quality blocklists. I wanted to combine multiple "functionality over blocking" lists to create the ultimate fire and forget list. It aims to provide robust protection against ads, trackers, and malicious domains without breaking your favorite websites.
+Prime Blocklist is an automatically updated aggregation of high-quality blocklists. I wanted to combine multiple "functionality over blocking" lists to create the ultimate fire and forget list. It aims to provide robust protection against ads, trackers, and malicious domains without breaking your favorite websites.
 
 ### 🎯 Philosophy
 
@@ -28,7 +28,7 @@ The list is automatically updated **every hour** to ensure it stays up-to-date.
 
 **Raw URL:**
 ```
-https://github.com/Pattern-max/NetBlocker/raw/refs/heads/main/list/NetBlocker.txt
+https://github.com/Pattern-max/Prime Blocklist/raw/refs/heads/main/list/Prime Blocklist.txt
 ```
 
 Add this URL to your Pi-hole, AdGuard Home, or any other DNS blocker.
@@ -37,4 +37,4 @@ Add this URL to your Pi-hole, AdGuard Home, or any other DNS blocker.
 
 - **Add an Entry:** Please suggest any change to the upstream blocklist provider directly. I currently don't plan to maintain my own list.
 - **False Positives:** Please suggest any change to the upstream blocklist provider directly. I currently don't plan to maintain my own list.
-- **Recommend a List:** You can suggest a blocklist to be added to the NetBlocker. Just open an issue or pull request.
+- **Recommend a List:** You can suggest a blocklist to be added to the Prime Blocklist. Just open an issue or pull request.
