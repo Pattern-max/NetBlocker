@@ -17,8 +17,10 @@ Prime Blocklist is an automatically updated aggregation of high-quality blocklis
 
 This list combines the following sources:
 
-- **[AdGuard DNS Filter](https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt)**: A comprehensive filter composed of several other filters (AdGuard Base filter, Social Media filter, Tracking Protection filter, Mobile Ads filter, EasyList, and EasyPrivacy) specifically simplified to be compatible with DNS-level ad blocking. [Report false positive](https://reports.adguard.com/en/new_issue.html)
-- **[OISD Big](https://big.oisd.nl)**: A massive, highly-regarded blocklist that focuses heavily on not breaking valid services. [Report false positive](https://oisd.nl/report)
+- **[HaGeZi's Pop-Up Ads DNS Blocklist](https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/popupads.txt)**: Blocks annoying and malicious pop-up ads. [Report false positive](https://github.com/hagezi/dns-blocklists/issues)
+- **[HaGeZi's Threat Intelligence Feeds DNS Blocklist](https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.txt)**: Increases security significantly! Blocks Malware, Cryptojacking, Spam, Scam and Phishing. [Report false positive](https://github.com/hagezi/dns-blocklists/issues)
+- **[HaGeZi's Fake DNS Blocklist](https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/fake.txt)**: Protects against internet scams, traps & fakes! Blocks fake stores, -streaming, rip-offs, cost traps and co. [Report false positive](https://github.com/hagezi/dns-blocklists/issues)
+- **[HaGeZi's Pro DNS Blocklist](https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt)**: Big broom - Cleans the Internet and protects your privacy! Blocks Ads, Affiliate, Tracking, Metrics, Telemetry, Phishing, Malware, Scam, Fake, Crytojacking and other "Crap". [Report false positive](https://github.com/hagezi/dns-blocklists/issues)
 
 ## 🔄 Updates
 
