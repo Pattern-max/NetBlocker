@@ -2,7 +2,6 @@
 ! Title: 综合白名单集合
 ! Description: 集成多个来源的白名单规则
 ! Version: 1.0.0
-! Homepage: https://github.com/用户/whitelist-collection
 ! License: MIT
 ! Last modified: 2026-02-10T00:52:39.804Z
 !
@@ -19357,3 +19356,4 @@
 @@||zzb.bz^
 @@||zzlinks.com^
 @@||zzu.info^
+
